@@ -1,0 +1,43 @@
+@charset "UTF-8";
+/*=======================================================================
+ * =================   				CSS  MAXIMENU 				=========
+ * ====================================================================== */
+moduletable.maximenu {
+    position: relative;
+    display: block;
+    width: 100%;
+   }
+.maximenu ul{
+ margin: auto 0px;
+} 
+.maximenu ul li {
+list-style-type:none;
+}
+
+li.Nivel1 {
+float:left;
+padding: 5px 25px 5px 25px;
+}
+div.maximenu2 {
+position:absolute;
+display:table;
+padding: 0px auto;
+}
+ul.descendente1{
+margin: 0px auto;
+}
+
+li.Nivel2 {
+  float:left;
+  
+}
+.maximenu li.Nivel1 div{
+ display:none;
+} 
+.maximenu li.Nivel1:hover > div{
+  display:table;
+}
+.maximenu li.Nivel1 ul.maximenu .descendente2{
+  display:table;
+  background-color:red;
+}

@@ -1,0 +1,6 @@
+Menu de Soluciones Vigo
+Autor : Ricardo Carpintero
+Ayuda en ayuda.svigo.es
+
+Un menu sencillo para Joomla 3.X , en el que podemos convertirlo en MAXI MENU.
+
