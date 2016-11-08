@@ -22,6 +22,7 @@
 		<language tag="en-GB">languages/en-GB/en-GB.mod_menusv.sys.ini</language>
 		<language tag="es-ES">languages/es-ES/es-ES.mod_menusv.ini</language>
 		<language tag="es-ES">languages/es-ES/es-ES.mod_menusv.sys.ini</language>
+
 	</languages>
 	<help key="JHELP_EXTENSIONS_MODULE_MANAGER_MENU" />
 	<config>
