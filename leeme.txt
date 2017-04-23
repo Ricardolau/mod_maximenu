@@ -4,3 +4,5 @@ Ayuda en ayuda.svigo.es
 
 Un menu sencillo para Joomla 3.X , en el que podemos convertirlo en MAXI MENU.
 
+Existe un plugin que ideal para como mejora del modulo, ya que permite seleccionar en cada ITEM de menu si quieres o no MAXIMENU.
+
