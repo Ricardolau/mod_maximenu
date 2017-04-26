@@ -7,13 +7,25 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 defined('_JEXEC') or die;
-/* Ejemplo de lo que llamamos Nivel:
- *   Menu1 (Nivel1)
- * 		Menu2 (Nivel2)
- * 		menu2
- * 	 Menu0  (Nivel1)
- * 		Menu2  (Nivel2)
- * 		menu2
+/* Recuerda que las columnas en Nivel1 se hacen automaticas según los Nivel 2 que tenga el item.
+ * Ejemplo de lo que llamamos Nivel:
+ * Coches (Nivel1)
+ *   Renault (Nivel2)
+ * 		Megane 	(Nivel3)
+ * 		Express (Nivel3)
+ * 	 Ford  (Nivel2)
+ * 		Escort  (Nivel3)
+ * 		Ka		(Nivel3)
+ *   Seat  (Nivel2)
+ * 		Ibiza	(Nivel3)
+ * 		Cordoba	(Nivel3)
+ * Teniendo en cuenta que bootstrap son 12 columnas, por lo que si el numero items del nivel 2 son impar
+ * siempre va dejar alguna columna vacia 
+ * Por lo que las col-md sera 3, por lo habrá una col-md-3 que falté...
+ * por lo que lo recomendable es utilizar el Plugin para este menu donde se le indica a cada item lo que va ocupar en col-md
+ * 
+ * Los parametros del modulo obtenemos en $params
+ * 
  * */
 // $item->level indica el nivel que está.
 // El nivel empieza en 1 y cada vez que incrementa bajando a hijos.
@@ -22,8 +34,8 @@ $contador=0;
 // Note. It is important to remove spaces between elements.
 ?>
 <?php // The menu class is deprecated. Use nav instead. ?>
-<div class="maximenu">
-<ul class="maximenu<?php echo $class_sfx;?>"<?php
+<div class="menuSv">
+<ul class="menuSv<?php echo $class_sfx;?>"<?php
 	$tag = '';
 
 	if ($params->get('tag_id') != null)
@@ -36,6 +48,7 @@ $contador=0;
 <?php
 foreach ($list as $i => &$item)
 {
+	
 	$class = 'item-' . $item->id;
 	$contador = $contador +1;
 	if (($item->id == $active_id) OR ($item->type == 'alias' AND $item->params->get('aliasoptions') == $active_id))
@@ -87,6 +100,11 @@ foreach ($list as $i => &$item)
 		if ($ItMenuNi[$idPadre]){
 		$columnas =  12 / $ItMenuNi[$idPadre] ;
 		$columnas =  round($columnas);
+		// Si ponemos datos [anchor_css]
+			if (strlen($item->anchor_css)>0) {
+			$columnas = $item->anchor_css;
+			} 
+		 
 		} else {
 		$columnas = 12;
 		}
@@ -97,8 +115,18 @@ foreach ($list as $i => &$item)
 	}
 
 	echo '<li' . $class . '>';
-	
+	// Mostramos flecha si es deplegable y si es nivel 1 si el nivel siguiente es 2
+	$NivelItemSigu = $item->level - $item->level_diff ;
 
+	if ($item->level == 1){ 
+		if ($NivelItemSigu == 2 && $item->level == 1)
+		{
+		?>
+		<span class="glyphicon glyphicon-chevron-down" style="font-size: 10px;"> </span>
+		<?php
+		}
+	}
+	
 	// Render the menu item.
 	switch ($item->type) :
 		case 'separator':
@@ -109,11 +137,10 @@ foreach ($list as $i => &$item)
 			 * esta en producción ya que lo utilizamos para copiar un item de menu y	;
 			 * luego presentar al como modo depurador y asi ver el contenido que lleva 	;
 			 * da item * */
-			//~ if ($contador == 4)
-			//~ {
-			//~ $itemnuevo = $item;
-			//~ 
-			//~ }
+			if ($contador == 3)
+			{
+			$itemnuevo = $item;
+			}
 			// Fin condicional para depurar.
 			require JModuleHelper::getLayoutPath('mod_menusv', 'default_' . $item->type);
 			break;
@@ -137,7 +164,6 @@ foreach ($list as $i => &$item)
 	 *  $item->level + $item->level_diff ( Se suma porque realmente el item
 	 * es negativo. */
 	
-	$NivelItemSigu = $item->level - $item->level_diff ;
 
 	if ($NivelItemSigu == $item->level)
 	{
@@ -197,16 +223,16 @@ foreach ($list as $i => &$item)
 
 
 <?php // Depurardor.... 
-			
+			//~ 
 			//~ echo '<div class="separador"></div><div>';
 			//~ echo '<pre>';
 			//~ print_r($ItMenuNi);
 			//~ echo '</pre>';
 			//~ echo '</div>';
-			//~ echo '<div class="separador"></div><div>';
-			//~ echo '<pre>';
-			//~ print_r($itemnuevo);
-			//~ echo '</pre>';
-			//~ echo '</div>';
+			echo '<div class="separador"></div><div>';
+			echo '<pre>';
+			print_r($params);
+			echo '</pre>';
+			echo '</div>';
 			
 ?>

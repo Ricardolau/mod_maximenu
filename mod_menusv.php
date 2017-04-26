@@ -18,7 +18,7 @@ require_once __DIR__ . '/helper.php';
 $doc = JFactory::getDocument();
 
 //$doc->addScript(JURI::base(true).'/modules/mod_carousel/lib/jquery.bxslider.min.js', 'text/javascript');
-$doc->addStyleSheet(JURI::base(true).'/modules/mod_menusv/css/maximenu.css');
+$doc->addStyleSheet(JURI::base(true).'/modules/mod_menusv/css/menuSv.css');
 
 $list      = ModMenusvHelper::getList($params);
 $base      = ModMenusvHelper::getBase($params);
