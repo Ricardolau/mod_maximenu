@@ -49,16 +49,25 @@ class ModMenusvHelper
 			$items   = $menu->getItems('menutype', $params->get('menutype'));
 
 			$lastitem = 0;
+			$padres = array();  // Creo array que cuenta cuantos hijo tiene cada padre.
 
 			if ($items)
 			{
 				foreach ($items as $i => $item)
 				{
+					// Buscamos si existe el nivel sino lo creamos.
+					if (isset($padres[$item->parent_id])){
+						$hijos = $padres[$item->parent_id] + 1;
+						$padres[$item->parent_id] = $hijos;
+					} else {
+						$padres[$item->parent_id] = 1;
+					}
 					if (($start && $start > $item->level)
 						|| ($end && $item->level > $end)
 						|| (!$showAll && $item->level > 1 && !in_array($item->parent_id, $path))
 						|| ($start > 1 && !in_array($item->tree[$start - 2], $path)))
 					{
+						// Eliminamos items si no queremos mostrar ese nivel.
 						unset($items[$i]);
 						continue;
 					}
@@ -76,7 +85,7 @@ class ModMenusvHelper
 
 					$item->parent = (boolean) $menu->getItems('parent_id', (int) $item->id, true);
 
-					$lastitem     = $i;
+					$lastitem     = $i; 
 					$item->active = false;
 					$item->flink  = $item->link;
 
@@ -121,9 +130,11 @@ class ModMenusvHelper
 					$item->anchor_title = htmlspecialchars($item->params->get('menu-anchor_title', ''), ENT_COMPAT, 'UTF-8', false);
 					$item->menu_image   = $item->params->get('menu_image', '') ?
 						htmlspecialchars($item->params->get('menu_image', ''), ENT_COMPAT, 'UTF-8', false) : '';
-
-				}
-
+						
+				} // fin recorido de items
+				//~ echo '<pre>';
+				//~ print_r($padres);
+				//~ echo '<pre>';
 				if (isset($items[$lastitem]))
 				{
 					$items[$lastitem]->deeper     = (($start?$start:1) > $items[$lastitem]->level);
@@ -135,6 +146,12 @@ class ModMenusvHelper
 
 			$cache->store($items, $key);
 			
+		}
+		// Ahora añadimos los hermanos que hay en cada item.
+		foreach ($items as $i => $item)
+		{
+			// teniendo en cuenta que el valor 1 , es que hijo unico... :-)
+			$items[$i]->hermanos = $padres[$item->parent_id];
 		}
 		
 		return $items;

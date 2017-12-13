@@ -160,42 +160,7 @@
 						value="itemid"></option>
 				</field>
 			</fieldset>
-			<fieldset name="PGlobales" label="MOD_MENUSV_PGLOBALES_LABEL">
-				        <field name="spacer"
-                               type="spacer"
-                               default=""
-                               label="MOD_MENUSV_PGLOBALES_DESC"
-                        />
-                        <field name="PGlob_activar"
-                               type="radio"
-                               class="btn-group"
-                               default="1"
-                               label="MOD_MENUSV_PGLOBALES_ACTIVAR_LABEL"
-                               description="MOD_MENUSV_PGLOBALES_ACTIVAR_DESC">
-                                <option value="0">No</option>
-                                <option value="1">Si</option>
-                        </field>
-                        <field name="PGlob_Icono_Inicio"
-                               type="radio"
-                               class="btn-group"
-                               default="0"
-                               label="MOD_MENUSV_PGLOBALES_ICONO_INICIO_LABEL"
-                               description="MOD_MENUSV_PGLOBALES_ICONO_INICIO_DESC">
-                                <option value="0">No</option>
-                                <option value="1">Si</option>
-                        </field>
-                        <field name="PGlob_Nivel_Maxi"
-                               type="radio"
-                               class="btn-group"
-                               default="2"
-                               label="MOD_MENUSV_PGLOBALES_NIVELMAXI_LABEL"
-                               description="MOD_MENUSV_PGLOBALES_NIVELMAXI_DESC">
-                                <option value="2">Nivel 2</option>
-                                <option value="3">Nivel 3</option>
-                        </field>
-                        
-                        
-			</fieldset>
+			
 
 		</fields>
 	</config>

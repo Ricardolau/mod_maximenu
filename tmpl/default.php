@@ -1,57 +1,50 @@
 <?php
 /**
- * @package     Joomla.Site
- * @subpackage  mod_menu
+ * Origin @package     Joomla.Site
+ * Origin @subpackage  mod_menu
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @ version   1.0
+ * @ co-autor : Ricardo Carpintero
+ * @ ayuda: info@solucionesvigo.es
  */
-defined('_JEXEC') or die;
-/* Recuerda que las columnas en Nivel1 se hacen automaticas según los Nivel 2 que tenga el item.
- * Ejemplo de lo que llamamos Nivel:
- * Coches (Nivel1)
- *   Renault (Nivel2)
- * 		Megane 	(Nivel3)
- * 		Express (Nivel3)
- * 	 Ford  (Nivel2)
- * 		Escort  (Nivel3)
- * 		Ka		(Nivel3)
- *   Seat  (Nivel2)
- * 		Ibiza	(Nivel3)
- * 		Cordoba	(Nivel3)
- * Teniendo en cuenta que bootstrap son 12 columnas, por lo que si el numero items del nivel 2 son impar
- * siempre va dejar alguna columna vacia 
- * Por lo que las col-md sera 3, por lo habrá una col-md-3 que falté...
- * por lo que lo recomendable es utilizar el Plugin para este menu donde se le indica a cada item lo que va ocupar en col-md
- * 
- * Los parametros del modulo obtenemos en $params
- * 
- * */
-// $item->level indica el nivel que está.
-// El nivel empieza en 1 y cada vez que incrementa bajando a hijos.
-// $item->level_diff indica si va a bajar o subir de Nivel... Si es negativo sube nivel y si es positivo sube nivel.
-$contador=0;
-// Note. It is important to remove spaces between elements.
-?>
-<?php // The menu class is deprecated. Use nav instead. ?>
-<div class="menuSv">
-<ul class="menuSv<?php echo $class_sfx;?>"<?php
-	$tag = '';
 
-	if ($params->get('tag_id') != null)
-	{
-		// Id que ponemos en parametros avanzados 
-		$tag = $params->get('tag_id') . '';
-		echo ' id="' . $tag . '"';
-	}
-?>>
-<?php
-foreach ($list as $i => &$item)
+defined('_JEXEC') or die;
+
+$id = '';
+$estado_maximenu= '';
+$contador_hermano = 0;
+if ($tagId = $params->get('tag_id', ''))
 {
+	$id = ' id="' . $tagId . '"';
+}
+
+// The menu class is deprecated. Use nav instead
+?>
+<div class="menuSv">
+<ul class="menu<?php echo $class_sfx; ?>"<?php echo $id; ?>>
+<?php 
+	// Hay que recordar que dentro cada item tenemos parametros,
+	// puede haber uno del plugin menusv (pmenusv) donde puede :
+	//  valor -> 1 ; que es maximenu 
+	//  valor -> 0 ; No es maximenu , pero antes era maximenu.
+	// 	NO EXISTE -> O que no esta instalado el plugin o que no puso valor nunca
 	
-	$class = 'item-' . $item->id;
-	$contador = $contador +1;
-	if (($item->id == $active_id) OR ($item->type == 'alias' AND $item->params->get('aliasoptions') == $active_id))
+	//~ echo '<pre>';
+	//~ print_r($list);
+	//~ echo '</pre>';
+?>
+<?php foreach ($list as $i => &$item)
+{
+	$class = 'Nivel'.$item->level.' item-' . $item->id;
+
+	if ($item->id == $default_id)
+	{
+		$class .= ' default';
+	}
+
+	if ($item->id == $active_id || ($item->type === 'alias' && $item->params->get('aliasoptions') == $active_id))
 	{
 		$class .= ' current';
 	}
@@ -60,7 +53,7 @@ foreach ($list as $i => &$item)
 	{
 		$class .= ' active';
 	}
-	elseif ($item->type == 'alias')
+	elseif ($item->type === 'alias')
 	{
 		$aliasToId = $item->params->get('aliasoptions');
 
@@ -74,7 +67,7 @@ foreach ($list as $i => &$item)
 		}
 	}
 
-	if ($item->type == 'separator')
+	if ($item->type === 'separator')
 	{
 		$class .= ' divider';
 	}
@@ -88,60 +81,49 @@ foreach ($list as $i => &$item)
 	{
 		$class .= ' parent';
 	}
-
-	if (!empty($class))
-	{
-		if ($item->level == 2 ){
-		/* Ahora creamos variable de columnas con el valor de columnas que nos indica el array ;
-		* $ItMenuNi, este array tiene como clave el id y los hijo que tiene .
-		* Recuerda que utilizamos Bootstrap donde la regilla es de 12 por eso 
-		* */
-		$idPadre =$item->tree[0];
-		if ($ItMenuNi[$idPadre]){
-		$columnas =  12 / $ItMenuNi[$idPadre] ;
-		$columnas =  round($columnas);
-		// Si ponemos datos [anchor_css]
-			if (strlen($item->anchor_css)>0) {
-			$columnas = $item->anchor_css;
-			} 
-		 
-		} else {
-		$columnas = 12;
+	if ($estado_maximenu === 'activo'){
+		if ( $padre_maxi == $item->parent_id){
+			// Ahora ponemos etiqueta a hijos si esta maxi
+			// Ademas de iniciar o sumar al contador hermanos(hijos)
+			if ($contador_hermano === 0){
+				$hermanos = $item->hermanos;
+				$contador_hermano = 1;
+				
+			} else {
+				$contador_hermano++;
+			}
+		// Calculo de numero de columnas según hermanos
+		$num_columnas = (int)(12/$hermanos);
+		if ($num_columnas <2){
+			$num_columnas = 2; // No permitimos columnas inferiores a dos,... :-)
 		}
-		$class = ' class='.'"col-md-'.$columnas.' Nivel'.$item->level.' '. trim($class) . '"';
-		} else {
-		$class = ' class='.'"Nivel'.$item->level.' '. trim($class) . '"';
-		}
-	}
-
-	echo '<li' . $class . '>';
-	// Mostramos flecha si es deplegable y si es nivel 1 si el nivel siguiente es 2
-	$NivelItemSigu = $item->level - $item->level_diff ;
-
-	if ($item->level == 1){ 
-		if ($NivelItemSigu == 2 && $item->level == 1)
-		{
-		?>
-		<span class="glyphicon glyphicon-chevron-down" style="font-size: 10px;"> </span>
-		<?php
+		$class_div = 'col-md-'.$num_columnas.' Column-Maxi Hijo Maxi_'.$contador_hermano.' deeper_'.$item->deeper;
+		echo '<div class="'.$class_div.'">';
+		$class_ul = 'maxi descendente'.$item->level.' id-'.$item->id;
+		echo '<ul class="'.$class_ul.'">';	
 		}
 	}
 	
-	// Render the menu item.
+	// Identificamos si es un nieto
+	// Una forma practica de identificar si es un nieto, lo que hacemos utilizar el nivel 3 como tal..
+	if ($item->level === "3" && $estado_maximenu = 'activo'){
+		// Es un nieto
+		//~ $class_ul = 'maxi1 descendente'.$item->level.' id-'.$item->id;
+		//~ echo '<ul class="'.$class_ul.'">';	
+		// Clase para li
+		$class .= ' Nieto Maxi'.$hermanos.'-'.$contador_hermano;	
+	}
+	
+	
+	
+	
+	echo '<li class="' . $class . '">';
+
 	switch ($item->type) :
 		case 'separator':
-		case 'url':
 		case 'component':
 		case 'heading':
-			/* El siguiente condicional es para depurar debe estar comentado cuando 	;
-			 * esta en producción ya que lo utilizamos para copiar un item de menu y	;
-			 * luego presentar al como modo depurador y asi ver el contenido que lleva 	;
-			 * da item * */
-			if ($contador == 3)
-			{
-			$itemnuevo = $item;
-			}
-			// Fin condicional para depurar.
+		case 'url':
 			require JModuleHelper::getLayoutPath('mod_menusv', 'default_' . $item->type);
 			break;
 
@@ -150,89 +132,74 @@ foreach ($list as $i => &$item)
 			break;
 	endswitch;
 
-	/* Ahora vamos crear una variable para indicar cual es el nivel siguiente.
-	 * Aqui puede darse varias situaciones que estemos en el nivel 2 y 
-	 * que el siguiente $item va ser menos profundo por lo que debemos
-	 * cerrar <div class="maximenu2"> y no debemos cerrar </li>
-	 * Tambien puede darse que estemos un nivel superior como 3 o 4 y 
-	 * el siguiente nivel sea le uno, esto lo indica la $item->level_diff
-	 * que será negativo..
-	 * Ejemplo:
-	 * Estamos en nivel 4 y el siguiente item es del nivel 1, entonces
-	 * $item_>level_diff = -3
-	 * Por lo que si queremos saber si va volver al nivel 1, debemos
-	 *  $item->level + $item->level_diff ( Se suma porque realmente el item
-	 * es negativo. */
-	
+	// El proximo item es hijo.
 
-	if ($NivelItemSigu == $item->level)
+	if ($item->deeper)
 	{
-	// El siguiente es del mismo nivel
-	//~ echo '</li>';
-	//~ echo '<br/> Es mismo Nivel';
-	$NivelItemSigu = 0; // Realmente no hay siguiente nivel , es mismo
+		$class_ul = 'descendente'.$item->level.' id-'.$item->id;
+		if ($item->params->get('pmenusv_maxi')=== "1" && $item->level === "1"){
+			 // Si el parametro item menu tiene activado maximenu
+			 // recuerda que solo permito maximenu en nivel 1.
+			 $estado_maximenu = 'activo';
+			 $padre_maxi  = $item->id;
+			 echo '<div class="maximenu2 row">';
+		} else {
+			if ($estado_maximenu === 'activo'){
+				$class_ul .= ' maxi';
+			}
+			echo '<!-- Entro en ul en item_id:'.$item->id. ' -->';
+			echo '<ul class="'.$class_ul.'">'; 
+
+		}
+	
+	}	else {
+		$cierre_etiquetas = '</li>';
+
+		if ($item->shallower)
+		{
+			// El proximo es menos profundo.
+
+			if ($estado_maximenu === 'activo') {
+				$diferencia = $item->level_diff ;
+				// Identificamos si es un nieto o no 
+				if ($item->level === "3"){
+					// Es nieto por lo que cerramos tb <ul>
+					$cierre_etiquetas .= '</ul></li>';
+				}
+				// Si es nieto o hijo, va descender.. 
+				// Cerramos div columna
+				$cierre_etiquetas .= '</ul></div>';
+				if ($hermanos === $contador_hermano){
+					// Es el ultimo hijo o el ultimo nieto del ultimo hijo y va descender
+					$estado_maximenu = '';
+					$hermanos = 0;
+					$contador_hermano = 0;
+					// Cerramos etiqueta div de maxi menu
+					$cierre_etiquetas .= '</div>';
+
+				}
+				echo $cierre_etiquetas;
+				
+			} else {
+				
+				//~ $cierre_etiquetas .= str_repeat('</ul></li>', $item->level_diff);
+				$cierre_etiquetas .='</ul></li>';
+
+				echo $cierre_etiquetas;
+			}
+			echo '<!-- '.$cierre_etiquetas.'-->';
+
+		
+		}	else {
+		// El siguiente item es un hermano.
+			if ($estado_maximenu === 'activo' && $item->level === "2") {
+			// Es hijo que no tiene nietos.
+			$cierre_etiquetas .= '</ul></div><!-- Entro shallower div columna mismo nivel-->';
+			}
+		echo $cierre_etiquetas;
+		}
 	}
-	if ($NivelItemSigu == 2 && $item->level == 1)
-	{
-	/*  El nivel siguiente va ser 2 el de MaxiMenu y venimos del uno
-	 * por lo que sabemos que entramos, por lo que debemos abrir div maximenu2
-	 * */
-	 echo '<div class="maximenu2 row">';
-	 
-	 
-	}
-	if ($NivelItemSigu < $item->level && $NivelItemSigu > 0 && $NivelItemSigu !== 1)
-	{
-	// El siguiente item es menor al nivel y es mayor y distinto 1 
-	echo '</li>';
-	echo str_repeat('</ul></li>', $item->level_diff);
-
-	}
-	if ($NivelItemSigu > $item->level)
-	{
-	// El siguiente $item es más profundo, aumenta Nivel
-	echo '<ul class="descendente'.$item->level.'">';
-	}
-	
-	
-	if ($NivelItemSigu == 1 && $item->level > 1)
-	{
-	/*  El nivel siguiente va ser 1 , y venimos de un nivel más grande, 
-	 *  en estos momento debemos saber cual es el nivel que estamos y la 
-	 *  diferencia hasta 1, ya que tenemos que cerrar las etiquetas:
-	 * 	</li> y </ul> y cerrar el </div>.
-	 * */
-	 
-	//~ echo str_repeat('</li></ul>', $item->level_diff);
-	echo str_repeat('</li></ul>', $item->level_diff);
-	echo '</div><!-- Entro alli-->';
-	echo '</li>';
-	//~ echo '</li>';
-
-	}
-
-	
-	
-	
-	
-	
-} // Cierre foreach
-?></ul>
-
-</div>
-
-
-<?php // Depurardor.... 
-			//~ 
-			//~ echo '<div class="separador"></div><div>';
-			//~ echo '<pre>';
-			//~ print_r($ItMenuNi);
-			//~ echo '</pre>';
-			//~ echo '</div>';
-			echo '<div class="separador"></div><div>';
-			echo '<pre>';
-			print_r($params);
-			echo '</pre>';
-			echo '</div>';
-			
+}
 ?>
+</ul>
+</div>
